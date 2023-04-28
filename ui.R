@@ -14,18 +14,17 @@ library(DT)
 shinyUI(
   navbarPage(
     
-    titlePanel("eAraNeiGWAS (Zurich)"),
+    titlePanel("eAraNeiGWAS (Otsu, Japan)"),
     
     sidebarLayout(  
       sidebarPanel( 
         textInput("id",  
                   label = "Enter AGI code to display",  
-                  value = "AT1G06470"),
-        helpText(
-          HTML("
-            <i>Please note that some results may not be available for low-expressed genes. Error messages will occur for genes whose results are unavailable.</i> <br/>
-          ")
-        )
+                  value = "AT1G01920"),
+        helpText(HTML("
+        <i>Please note that some results may not be available for low-expressed genes. Error messages will occur for genes whose results are unavailable.</i> <br/>
+                      ")
+                 )
       ),
       mainPanel(   
         tabsetPanel(type = "tabs",
@@ -33,7 +32,7 @@ shinyUI(
                              DT::dataTableOutput("table")),  
                     tabPanel("rpm",   
                              plotOutput("hist"),
-                             downloadButton(outputId="data",label="Data")), 
+                             downloadButton(outputId="data",label="Data")),
                     tabPanel("PVE",   
                              plotOutput("pve",height="500px",width = "80%")),
                     tabPanel("MR_obs", 

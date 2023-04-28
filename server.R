@@ -13,7 +13,7 @@ library(ggplot2)
 library(patchwork)
 
 # load top table
-tab <- readRDS("./data/index_Zurich.rds")
+tab <- readRDS("./data/index_Japan.rds")
 tab[,1:8] <- round(tab[,1:8],3)
 
 # load description file
@@ -96,10 +96,10 @@ shinyServer(
       
       # plots
       p = list()
-      d2 = data.frame(d$rpmBLUP,Holes=pheno_2[,"Holes"],chewer=pheno_2[,"chewer"],sucker=pheno_2[,"sucker"])
-      rho = cor(d2$log2rpm1,log(d2$Holes+1),method="spearman")
-      tmp = ggplot(d2,aes(y=log2rpm1,x=log(Holes+1))) + labs(title="obs.",subtitle=paste0("rho = ",round(rho,3))) + geom_point(alpha=0.25) + 
-        xlab("ln(No. of holes + 1)") + ylab(expression(log[2]*(rpm+1))) + theme_classic()
+      d2 = data.frame(d$rpmBLUP,Score=pheno_2[,"Score"],chewer=pheno_2[,"chewer"],sucker=pheno_2[,"sucker"])
+      rho = cor(d2$log2rpm1,d2$Score,method="spearman")
+      tmp = ggplot(d2,aes(y=log2rpm1,x=jitter(Score))) + labs(title="obs.",subtitle=paste0("rho = ",round(rho,3))) + geom_point(alpha=0.25) + 
+        xlab("Leaf area loss") + ylab(expression(log[2]*(rpm+1))) + theme_classic()
       p = append(p,list(tmp))
       rho = cor(d2$log2rpm1,log(d2$chewer+1),method="spearman")
       tmp = ggplot(d2,aes(y=log2rpm1,x=log(chewer+1))) + labs(subtitle=paste0("rho = ",round(rho,3))) + geom_point(alpha=0.25) + 
@@ -111,9 +111,9 @@ shinyServer(
       p = append(p,list(tmp))
       
       for(i in colnames(d2)[2:4]) {
-        rho = cor(d2[,i],log(d2$Holes+1),method="spearman")
-        tmp = ggplot(d2,aes_string(y=i,x=log(d2$Holes+1))) + labs(subtitle=paste0("rho = ",round(rho,3))) + geom_point(alpha=0.25) + 
-          xlab("ln(No. of holes + 1)") + ylab("BLUP") + theme_classic()
+        rho = cor(d2[,i],d2$Score,method="spearman")
+        tmp = ggplot(d2,aes_string(y=i,x=jitter(d2$Score))) + labs(subtitle=paste0("rho = ",round(rho,3))) + geom_point(alpha=0.25) + 
+          xlab("Leaf area loss") + ylab("BLUP") + theme_classic()
         p = append(p,list(tmp))
         rho = cor(d2[,i],log(d2$chewer+1),method="spearman")
         tmp = ggplot(d2,aes_string(y=i,x=log(d2$chewer+1))) + labs(subtitle=paste0("rho = ",round(rho,3))) + geom_point(alpha=0.25) + 
@@ -133,9 +133,9 @@ shinyServer(
       name = try(substr(f[1],13,regexpr(".png",f)[1]-1))
       s = try(substr(f[1],regexpr(".png",f)[1]-1,regexpr(".png",f)[1]-1))
       try(switch(s,
-             "0" = s <- 0,
-             "1" = s <- 4,
-             "2" = s <- 12))
+                 "0" = s <- 0,
+                 "1" = s <- 4,
+                 "2" = s <- 12))
       name = try(substr(name,1,nchar(name)-2))
       name = try(paste0(name,"J",s))
       print(try(name))
@@ -149,7 +149,7 @@ shinyServer(
     },deleteFile=FALSE)
     
     output$candidate <- DT::renderDataTable({
-      f = try(system(paste0("ls ./data//*/top001_",input$id,".csv"),intern=TRUE))
+      f = try(system(paste0("ls ./data/*/top001_",input$id,".csv"),intern=TRUE))
       tab = try(read.delim(f,sep="\t",header=TRUE,as.is=TRUE))
       try(as.data.frame(tab[,2:9]))}, 
       filter="top",
